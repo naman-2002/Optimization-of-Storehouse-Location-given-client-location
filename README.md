@@ -8,3 +8,6 @@ Key Highlights:
 2). Leveraged Python libraries such as Sci-Kit Learn, Numpy, etc.
 3). Used Manhattan distance to calculate the distance between clients and the warehouse.
 4). Implemented KMeans for clustering.
+
+
+Website Link: https://lnkd.in/gfeTFtDH (pc specific) 
