@@ -1,6 +1,6 @@
 # Optimization of Storehouse Location given client location
 
-I'm excited to share my latest project: OOptimization of Storehouse Location given client location.
+I'm excited to share my latest project: Optimization of Storehouse Location given client location.
 I have developed a website where you can input the coordinates of your clients in the shown map and provide the no. of needed storehouse, and it will provide you with the optimized location for the storehouses.
 
 Key Highlights:
