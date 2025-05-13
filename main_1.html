@@ -3,252 +3,214 @@
 <head>    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map with Click Coordinates</title>
-    <link rel="stylesheet" href="styles.css">
-    
+    <title>Optimal Warehouse Locator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
     <style>
-
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #ffffff;
-            position: relative; /* Added for positioning the logo */
+            background-color: #f0f2f5;
         }
 
         header {
-            background-color: #ffffff;
-            color: #fff;
-            padding: 20px;
+            background-color: #343a40;
+            color: white;
+            padding: 16px;
             text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
         }
 
         .container {
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             height: calc(100vh - 80px);
-            
+            padding: 20px;
         }
 
         .map {
             height: 900px;
             width: 70%;
-            margin-right: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
 
         .controls {
             width: 28%;
-            padding: 20px;
-            padding-left: 10px;
-            padding-top: 40px;
-            background-color: #fff;
-            border-radius: 20px;
-            position: relative; /* Make the container relatively positioned */
-        }
-
-        label {
-            font-weight: bold;
-            padding-bottom: 1100px;
-            padding-inline: 0px;
-            
+            margin-left: 20px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .controls label {
             font-weight: bold;
-            margin-bottom: 10px; /* Add space below the label */
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .controls input[type="number"] {
+            width: 100%;
+            padding: 8px 12px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 1em;
         }
 
         .controls button {
-            padding: 8px 16px;
-            background-color: #4caf50;
-            color: #fff;
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 1em;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
-            margin-top: 30px; /* Add space above the button */
+            transition: background-color 0.2s ease-in-out;
         }
 
-
-        input[type="integer"] {
-            width: 90px;
-            padding: 50px;
-            margin-right: 10px;
-            padding-inline: 100px;
+        .controls button:hover {
+            background-color: #333;
         }
 
-        button {
-            padding: 8px 16px;
-            background-color: #4caf50;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            padding-left: 150px;
-            padding-right: 120px;
-
-        }
-
-        button:hover {
-            background-color: #000000;
-        }
-
-        /* .points-container {
-            margin-top: 4cap;
-            
-          
-        } */
-
-        /* Define button position */
-        .button-positioned {
-            position: relative; /* Position the button absolutely */
-            top: 500px; /* Position the button 50% from the top of its container */
-            left: 900px; /* Position the button 50% from the left of its container */
-            transform: translateY(150px); /* Center the button using translation */
-
-        }
+        .controls .show-btn { background-color: #28a745; color: white; }
+        .controls .undo-btn { background-color: #ffc107; color: black; }
+        .controls .remove-btn { background-color: #dc3545; color: white; }
 
         .next-page {
-            position: fixed; /* Ensure the button stays fixed on the screen */
-            bottom: 20px; /* Adjust the distance from the bottom of the screen */
-            right: 20px; /* Adjust the distance from the right edge of the screen */
-            /* Alternatively, you can use other positioning properties like top, left, or margin */
-        }
-
-        /* .next-page {
-            display: block;
             position: fixed;
-            top: 150%;
-            right: 120px; /* Adjust this value to position the button as per your preference */
-            /* left: 400px; */
-            /* transform: translateY(-150%);
-            width: 120px;
-            text-align: center;
-            padding: 10px;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            font-size: 1em;
             background-color: #007bff;
-            color: #fff;
+            color: white;
+            border: none;
+            border-radius: 8px;
             text-decoration: none;
-            border-radius: 12px;
-            z-index: 999; Ensure the button stays on top of other elements */
-        /* } */ */
+            transition: background-color 0.2s ease-in-out;
+        }
 
         .next-page:hover {
             background-color: #0056b3;
         }
+
         .logo {
             position: absolute;
-            top: 40px; /* Adjust as needed */
-            right: 40px; /* Adjust as needed */
-            width: 40px; /* Adjust as needed */
-            height: 40px; /* Adjust as needed */
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
         }
     </style>
 </head>
 <body>
+
+    <header>Optimal Warehouse Locator</header>
+
     <div class="container">
         <div id="map" class="map"></div>
         <div class="controls">
-            <label for="p-value">ENTER THE VALUE OF P : </label>
-            <input type="number" id="p-value" min="1" step="1" value="1"> <!-- Input field for the value of p -->
-            <button onclick="showPoints()"><B>Show Client Location</B></button> <!-- Button to show points array -->
-            <div id="points-container" class="points-container"></div> <!-- Container to display points -->
+            <label for="p-value">Enter the value of P:</label>
+            <input type="number" id="p-value" min="1" step="1" value="1">
+
+            <button class="show-btn" onclick="showPoints()">Show Client Location</button>
+            <button class="undo-btn" onclick="undoPoint()">Undo</button>
+            <button class="remove-btn" onclick="removeAllPoints()">Remove All</button>
+
+            <div id="points-container" class="points-container" style="margin-top: 20px;"></div>
         </div>
     </div>
 
-    <!-- Button to navigate to the next page -->
-    <a href="display_coordinates.html"><button>Next Page</button></a>
+    <!-- Next Page
+    <a class="next-page" href="display_coordinates.html">Next Page</a> -->
 
     <!-- Logo -->
     <img src="location (1).png" alt="Logo" class="logo">
 
+    <!-- Leaflet JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css">
+
     <script>
-        var points = []; // Array to store points
-        var markers = []; // Array to store markers
-    
-        // Initialize map
-        var map = L.map('map').setView([50, 80], 2);
-    
-        // Add tile layer
+        let points = [];
+        let markers = [];
+
+        const map = L.map('map').setView([50, 80], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-    
-        // Define a custom icon for the location finder 1
-        var locationFinderIcon1 = L.icon({
-            iconUrl: 'location.png', // URL to the icon image
-            iconSize: [32, 32], // Size of the icon
-            iconAnchor: [16, 32], // Anchor point of the icon
+
+        const locationFinderIcon1 = L.icon({
+            iconUrl: 'location.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
         });
 
-        // Define a custom icon for the location finder 2
-        var locationFinderIcon2 = L.icon({
-            iconUrl: 'pin.png', // URL to the icon image
-            iconSize: [32, 32], // Size of the icon
-            iconAnchor: [16, 32], // Anchor point of the icon
+        const locationFinderIcon2 = L.icon({
+            iconUrl: 'pin.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32]
         });
-    
-        // Event listener for clicking on the map
-        map.on('click', function(e) {
-            var clickedLatLng = e.latlng;
-            var x = clickedLatLng.lng;
-            var y = clickedLatLng.lat;
-    
-            // Create a marker with the custom icon at the clicked point
-            var marker = L.marker([y, x], { icon: locationFinderIcon1 }).addTo(map);
-            markers.push(marker); // Add the marker to the array
-    
-            // Add coordinates to points array
-            points.push([x*100000000000000000, y*100000000000000000]);
+
+        map.on('click', function (e) {
+            const { lat, lng } = e.latlng;
+            const marker = L.marker([lat, lng], { icon: locationFinderIcon1 }).addTo(map);
+            markers.push(marker);
+            points.push([lng * 1e17, lat * 1e17]); // scale to integers
         });
-    
-        // Event listener for undoing the last point using Ctrl + Z
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && e.key === 'z') { // Check if Ctrl + Z is pressed
-                // Remove the last coordinate from the points array
+
+        function undoPoint() {
+            if (points.length > 0) {
                 points.pop();
-    
-                // Remove the last marker from the map and array
-                var lastMarker = markers.pop();
-                if (lastMarker) {
-                    map.removeLayer(lastMarker);
-                }
+                const marker = markers.pop();
+                if (marker) map.removeLayer(marker);
             }
-        });
-    
-        // Function to show points array
+        }
+
+        function removeAllPoints() {
+            points = [];
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+        }
+
         function showPoints() {
-            var pointsContainer = document.getElementById('points-container');
-            var pValue = document.getElementById('p-value').value; // Get the value of p from the input field
-            pointsContainer.innerHTML = 'loading...';
-    
-            // Send points array and value of p to server
-            fetch('https://optimal-locator-of-warehouses-given.onrender.com/process_points', { // Change this to the appropriate endpoint
+            const pValue = document.getElementById('p-value').value;
+            const pointsContainer = document.getElementById('points-container');
+            pointsContainer.innerHTML = 'Processing...';
+
+            fetch('https://optimal-locator-of-warehouses-given.onrender.com/process_points', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ points: points, p: pValue }) // Include the value of p in the request body
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ points: points, p: pValue })
             })
-            .then(response => response.json()) // Parse the response as JSON
+            .then(res => res.json())
             .then(data => {
-                pointsContainer.innerHTML = '"The Location points have been Marked on the Map."'  // Display server response
-    
-                // Loop through each coordinate pair in the response data
+                pointsContainer.innerHTML = "The location points have been marked on the map.";
                 data.forEach(coord => {
-                    // Extract longitude (x) and latitude (y) from the coordinate pair
-                    var x = coord[0];
-                    var y = coord[1];
-    
-                    // Create a marker with the custom icon at the coordinate pair
-                    var marker = L.marker([y/100000000000000000, x/100000000000000000], { icon: locationFinderIcon2 }).addTo(map);
+                    const [x, y] = coord;
+                    const marker = L.marker([y / 1e17, x / 1e17], { icon: locationFinderIcon2 }).addTo(map);
                 });
             })
-            .catch(error => {
-                pointsContainer.innerHTML = 'Error: ' + error.message; // Display error message
+            .catch(err => {
+                pointsContainer.innerHTML = 'Error: ' + err.message;
             });
         }
+
+        // Enable Ctrl+Z to undo
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'z') {
+                undoPoint();
+            }
+        });
+    </script>
+</body>
+</html>
+
     </script>
     
 </body>
